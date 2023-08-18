@@ -7,6 +7,9 @@ import cookieParser from "cookie-parser"; // to parse cookie header and req.cook
 import compression from "compression"; // to compress response bodies for all request that traverse through the middleware.
 import fileUpload from "express-fileupload"; // to make uploaded files accessable from req.files
 import cors from "cors"; // to protect and restrict access to the server.
+import createHttpError from "http-errors"; // for handling http errors.
+
+import routes from "./routes/index.js";
 
 //  create express app
 const app = express();
@@ -41,7 +44,11 @@ app.use(
   })
 );
 
-//restrict access to teh server.
+//! API V1 routes
+
+app.use("/api/v1", routes);
+
+// restrict access to the server.
 app.use(
   cors({
     origin: "http://localhost:3000", // only port to connect frontEnd
@@ -50,6 +57,23 @@ app.use(
 
 app.get("/", (req, res) => {
   res.send(req.body);
+});
+
+// middleware for error handling
+app.use(async (req, res, next) => {
+  throw createHttpError.BadRequest("this route has an error");
+});
+
+app.use(async (req, res, next) => {
+  s;
+  throw createHttpError.NotFound("this route does not exist");
+});
+
+// http error handling
+
+app.use(async (err, req, res, next) => {
+  res.status(err.status || 500);
+  res.send({ status: err.status || 500, message: err.message });
 });
 
 export default app;
